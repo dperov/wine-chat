@@ -2,9 +2,10 @@
 from openai import OpenAI
 import json
 from execute_sql import execute_sql
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()
+
+load_dotenv(find_dotenv())
 
 print(os.getenv("OPENAI_API_KEY"))
 print(os.getenv("HTTPS_PROXY"))
