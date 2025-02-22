@@ -7,9 +7,9 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-print(os.getenv("OPENAI_API_KEY"))
-print(os.getenv("HTTPS_PROXY"))
-print(os.getenv("HTTP_PROXY"))
+print(f'OPENAI_API_KEY: {os.getenv("OPENAI_API_KEY")}')
+print(f'HTTPS_PROXY: {os.getenv("HTTPS_PROXY")}')
+print(f'HTTP_PROXY: {os.getenv("HTTP_PROXY")}')
 
 client = OpenAI()
 
