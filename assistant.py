@@ -25,7 +25,16 @@ tools = [
           "properties": {
             "query": {
               "type": "string",
-              "description": "The SQL query to execute."
+              "description": f"""
+                      SQL query extracting info to answer the user's question.
+                      SQL should be written using this database schema:
+                      Table: wines
+                      Columns: Регион, Производитель, Вино, Год, Рейтинг, Балл, Страница   
+                      String data should be searched via LIKE operator.
+                      String data should be converted to lowercase.
+                      Column values for comparison should be converted to lowercase using the UTF8_LOWER function.                   
+                      For example: SELECT DISTINCT Производитель FROM wines WHERE UTF8_LOWER(Регион) LIKE '%крым%'
+                      """,              
             }
           },
           "required": [
@@ -36,12 +45,15 @@ tools = [
     }
 ]
 
+"""
+Нужно преобразовать запрос пользователя в sql, вызвать функцию и преобразовать json в читаемый текст. 
+Строковые данные искать по неточному совпадению и передавать в sql в нижнем регистре. 
+Данные для сравнения преобразовывать в нижний регистр с помощью функции UTF8_LOWER.
+"""
+
 prompt ="""
 Ты опытный знаток российский вин. 
 Ты отвечаешь на вопросы пользователя, которые касаются российских вин. 
-Есть база данных рейтинга вина с полями 'Регион', 'Производитель', 'Вино', 'Год', 'Рейтинг'. 
-Имя таблицы  'wines'. 
-Нужно преобразовать запрос пользователя в sql, вызвать функцию и преобразовать json в читаемый текст. 
 Если вопрос пользователя не относится к данным этой базы, воспользуйся другими источниками. 
 Вопросы на темы отличные от виноделия не отвечать. 
 Тебе известны только вина из базы.

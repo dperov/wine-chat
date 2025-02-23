@@ -2,7 +2,15 @@
 import sqlite3
 import csv
 import json
+import unicodedata
 
+
+# Функция для преобразования строки в нижний регистр с учетом UTF-8
+def utf8_lower(value):
+    if value is None:
+        return None
+    # Нормализуем строку и преобразуем в нижний регистр
+    return unicodedata.normalize('NFKD', value).lower()
 
 def load_csv_to_db(csv_file, db_file = "database.db", table_name = "wines"):
     # Открываем CSV файл и читаем его
@@ -13,6 +21,8 @@ def load_csv_to_db(csv_file, db_file = "database.db", table_name = "wines"):
         print("Старая база данных удалена.")
 
     conn = sqlite3.connect(db_file)
+    conn.create_function("UTF8_LOWER", 1, utf8_lower)  # Регистрируем функцию в SQLite
+
     cursor = conn.cursor()
 
     with open(csv_file, 'r', encoding='utf-8') as file:
@@ -23,8 +33,19 @@ def load_csv_to_db(csv_file, db_file = "database.db", table_name = "wines"):
         columns = csv_reader.fieldnames
         
         # Создаем таблицу в SQLite, если она еще не существует
-        create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({', '.join([f'{col} TEXT' for col in columns])})"
+        columns = ['Регион', 'Производитель', 'Вино', 'Год', 'Рейтинг', 'Балл', 'Страница']
+        search_columns = ['Регион', 'Производитель', 'Вино']
+        integer_columns = ['Год', 'Рейтинг', 'Балл', 'Страница']
+        create_table_query = f"""
+        CREATE TABLE IF NOT EXISTS {table_name} 
+        ( 
+            {', '.join([f'{col} TEXT' for col in search_columns])},
+            {', '.join([f'{col} INTEGER' for col in integer_columns])}
+        )
+        """
+        print(create_table_query)
         cursor.execute(create_table_query)
+        
         
         # Вставляем данные из CSV в таблицу SQLite
         for row in csv_reader:
@@ -34,6 +55,7 @@ def load_csv_to_db(csv_file, db_file = "database.db", table_name = "wines"):
             values = [row[col] for col in columns]
             #print(values)
             cursor.execute(insert_query, [row[col] for col in columns])
+        
 
     # Сохраняем изменения и закрываем соединение
     conn.commit()
@@ -42,11 +64,12 @@ def load_csv_to_db(csv_file, db_file = "database.db", table_name = "wines"):
 
 def execute_sql(query, db_file = "database.db"):
     conn = sqlite3.connect(db_file)
+    conn.create_function("UTF8_LOWER", 1, utf8_lower)  # Регистрируем функцию в SQLite
     cursor = conn.cursor()
     cursor.execute(query)
     columns = [desc[0] for desc in cursor.description]
     rows = cursor.fetchall()
-    #print(rows)
+    print(f'result: {len(rows)} rows')
     conn.close()
     
     result = [dict(zip(columns, row)) for row in rows]
