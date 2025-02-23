@@ -4,7 +4,6 @@ import json
 from execute_sql import execute_sql
 from dotenv import load_dotenv, find_dotenv
 
-
 load_dotenv(find_dotenv())
 
 print(f'OPENAI_API_KEY: {os.getenv("OPENAI_API_KEY")}')
@@ -45,11 +44,6 @@ tools = [
     }
 ]
 
-"""
-Нужно преобразовать запрос пользователя в sql, вызвать функцию и преобразовать json в читаемый текст. 
-Строковые данные искать по неточному совпадению и передавать в sql в нижнем регистре. 
-Данные для сравнения преобразовывать в нижний регистр с помощью функции UTF8_LOWER.
-"""
 
 prompt ="""
 Ты опытный знаток российский вин. 
@@ -123,7 +117,6 @@ def ask_assistant(question):
   print(f'sql:{sql}')
 
   result = execute_sql(args["query"])
-
 
   messages.append(completion.choices[0].message)  # append model's function call message
   messages.append({                               # append result message
